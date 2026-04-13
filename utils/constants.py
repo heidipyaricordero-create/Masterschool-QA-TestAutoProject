@@ -1,3 +1,2 @@
-user_password = "heidi"
-passwort = "heidi123"
+TIMEOUT= 10
 
