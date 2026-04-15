@@ -3,31 +3,36 @@ from pages.BasePage import BasePage
 
 
 class LoginPage(BasePage):
-    # Locators (Write the locators in the form of tuples)
-    USERNAME_FIELD_LOCATOR = (By.XPATH, "//input[@type='email']")
-    PASSWORD_FIELD_LOCATOR = (By.XPATH, "//input[@type='password']")
-    SIGNIN_BUTTON_LOCATOR = (By.XPATH, "//button[@type='submit' and text()='Sign In']")
-    ERROR_ALERT_LOCATOR = (By.XPATH, "//div[@role='status']")
-    PAGE_URL = 'https://grocerymate.masterschool.com/auth'
 
+    URL = "https://grocerymate.masterschool.com/auth"
+    EMAIL_FIELD = (By.XPATH, "//input[@type='email']")
+    PASSWORD_FIELD = (By.XPATH, "//input[@type='password']")
+    SIGNIN_BTN = (By.XPATH, "//button[@type='submit' and text()='Sign In']")
+    ERROR_ALERT = (By.XPATH, "//div[@role='status' and text()='Invalid username or password']")
+
+    # ---Actions---
     def __init__(self, driver):
         super().__init__(driver)
 
-    def enter_username(self, username):
-        self.enter_text(self.USERNAME_FIELD_LOCATOR, username)
+    def load(self):
+        return self.open(self. URL)
+
+    def enter_email(self, email):
+        self.type_text(self.EMAIL_FIELD, email)
+        return self
 
     def enter_password(self, password):
-        self.enter_text(self.PASSWORD_FIELD_LOCATOR, password)
+        self.type_text(self.PASSWORD_FIELD, password)
+        return self
 
-    def click_login(self):
-        self.click(self.SIGNIN_BUTTON_LOCATOR)
+    def click_signin(self):
+        self.click(self.SIGNIN_BTN)
+        return self
 
-    def login(self, username, password):
-        self.enter_username(username)
+    def login(self, email, password):
+        self.enter_email(email)
         self.enter_password(password)
-        self.click_login()
+        self.click_signin()
 
-
-    def get_error_message(self):
-        element = self.find_element(self.ERROR_ALERT_LOCATOR)
-        return element.text
+    def get_error_displayed(self):
+        return self.is_visible(self.ERROR_ALERT)
