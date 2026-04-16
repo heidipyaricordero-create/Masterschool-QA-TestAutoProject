@@ -44,3 +44,14 @@ def test_user_one_day_younger_than18(driver):
 def test_direct_url_bypasses_verification(driver):
     login_page = LoginPage(driver)
     login_page.load()
+    homepage = login_page.login("johndoe@example.com", "admin123")
+
+    alcohol_product_url = "https://grocerymate.masterschool.com/product/66b3a57b3fd5048eacb47a9b"
+    driver.get(alcohol_product_url)
+
+    age_verification_modal =AgeVerificationPage(driver)
+
+    assert age_verification_modal.verify_age("01-01-1990")
+    assert age_verification_modal.is_age_sucess_displayed()
+
+
