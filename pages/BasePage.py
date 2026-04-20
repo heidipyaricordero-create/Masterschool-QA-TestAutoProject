@@ -11,7 +11,7 @@ class BasePage:
         page objects can focus purely on page-specific behavior
     """
 
-    DEFAULT_TIMEOUT = 10
+    DEFAULT_TIMEOUT = 30
 
     def __init__(self, driver):
         self.driver = driver

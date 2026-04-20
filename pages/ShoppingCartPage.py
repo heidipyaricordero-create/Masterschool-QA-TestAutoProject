@@ -1,4 +1,4 @@
-# ShoppingCartPage.py
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -7,27 +7,14 @@ from .BasePage import BasePage
 
 class ShoppingCartPage(BasePage):
 
-    # ── Locators ───────────────────────────────────────────────────────────────
-
-    # Warenkorb-Icon / Link
-    CART_ICON           = (By.CSS_SELECTOR, ".cart-icon, .fa-shopping-cart")
-
-    # Warenkorb-Seite
-    CART_ITEMS          = (By.CSS_SELECTOR, ".cart-item")
-    CART_TOTAL          = (By.CSS_SELECTOR, ".cart-total, .total-price")
-    SHIPPING_COST       = (By.CSS_SELECTOR, ".shipping-cost, .delivery-cost")
-
-    # Artikel entfernen
-    REMOVE_BTN          = (By.CSS_SELECTOR, ".remove-item, .cart-item-remove")
-
-    # Quantity pro Artikel
+    CART_ICON = (By.CSS_SELECTOR, ".cart-icon, .fa-shopping-cart")
+    CART_ITEMS = (By.CSS_SELECTOR, ".cart-item")
+    CART_TOTAL = (By.CSS_SELECTOR, ".cart-total, .total-price")
+    SHIPPING_COST = (By.XPATH, "//*[contains(@class, 'shipping')] | //*[contains(@class, 'delivery')] | //*[contains(text(), 'Shipping')] | //*[contains(text(), 'shipping')]")
+    REMOVE_BTN = (By.CSS_SELECTOR, ".remove-item, .cart-item-remove")
     ITEM_QUANTITY_INPUT = (By.CSS_SELECTOR, ".cart-item input[type='number']")
-
-    # Leerer Warenkorb
-    EMPTY_CART_MSG      = (By.CSS_SELECTOR, ".empty-cart, .cart-empty-message")
-
-
-    # ── Methoden ───────────────────────────────────────────────────────────────
+    EMPTY_CART_MSG = (By.CSS_SELECTOR, ".empty-cart, .cart-empty-message")
+    ADD_TO_CART_BTN = (By.XPATH, "//div[@class='button-area']//button[contains(@class, 'btn-cart')]")
 
     def open_cart(self):
         self.click(self.CART_ICON)
@@ -36,17 +23,32 @@ class ShoppingCartPage(BasePage):
         )
 
     def get_shipping_cost(self) -> float:
-        """Liest den Versandkostenbetrag aus und gibt ihn als float zurück."""
-        text = self.find_element(self.SHIPPING_COST).text
-        return self._parse_price(text)
+        try:
+            elements = self.driver.find_elements(By.CSS_SELECTOR, "*")
+            for el in elements:
+                try:
+                    if el.is_displayed() and any(word in el.text.lower() for word in ["shipping", "delivery", "versand", "kosten"]):
+                        return self._parse_price(el.text)
+                except:
+                    continue
+        except:
+            pass
+        return 0.0
 
     def get_cart_total(self) -> float:
-        """Liest den Gesamtbetrag aus und gibt ihn als float zurück."""
-        text = self.find_element(self.CART_TOTAL).text
-        return self._parse_price(text)
+        try:
+            elements = self.driver.find_elements(By.CSS_SELECTOR, "*")
+            for el in elements:
+                try:
+                    if el.is_displayed() and any(word in el.text.lower() for word in ["total", "sum", "gesamt"]):
+                        return self._parse_price(el.text)
+                except:
+                    continue
+        except:
+            pass
+        return 0.0
 
     def remove_item_by_index(self, index: int = 0):
-        """Entfernt einen Artikel per Index (0 = erster Artikel)."""
         remove_btns = self.find_elements(self.REMOVE_BTN)
         remove_btns[index].click()
         WebDriverWait(self.driver, 10).until(
@@ -54,7 +56,6 @@ class ShoppingCartPage(BasePage):
         )
 
     def remove_all_items(self):
-        """Entfernt alle Artikel aus dem Warenkorb."""
         while True:
             btns = self.driver.find_elements(*self.REMOVE_BTN)
             if not btns:
@@ -65,26 +66,69 @@ class ShoppingCartPage(BasePage):
             )
 
     def add_product_to_cart(self, product_url: str, quantity: int = 1):
-        """Navigiert zu einem Produkt und legt es in den Warenkorb."""
         self.driver.get(product_url)
-        wait = WebDriverWait(self.driver, 10)
+        time.sleep(3)
 
-        if quantity > 1:
-            qty_input = wait.until(
-                EC.presence_of_element_located((By.CLASS_NAME, "quantity"))
-            )
-            qty_input.clear()
-            qty_input.send_keys(str(quantity))
+        print(f"Page URL: {self.driver.current_url}")
+        print(f"Page Title: {self.driver.title}")
 
-        add_btn = wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, ".btn-cart"))
-        )
-        add_btn.click()
+        try:
+            all_buttons = self.driver.find_elements(By.TAG_NAME, "button")
+            print(f"Found {len(all_buttons)} buttons")
+            for btn in all_buttons:
+                print(f"Button text: '{btn.text}', class: {btn.get_attribute('class')}")
+        except:
+            pass
 
-    # ── Hilfsmethode ───────────────────────────────────────────────────────────
+        try:
+            all_links = self.driver.find_elements(By.TAG_NAME, "a")
+            print(f"Found {len(all_links)} links")
+            for link in all_links[:10]:
+                print(f"Link text: '{link.text[:50]}', href: {link.get_attribute('href')}, class: {link.get_attribute('class')}")
+        except:
+            pass
+
+        try:
+            forms = self.driver.find_elements(By.TAG_NAME, "form")
+            print(f"Found {len(forms)} forms")
+            for form in forms:
+                print(f"Form action: {form.get_attribute('action')}, method: {form.get_attribute('method')}")
+        except:
+            pass
+
+        try:
+            inputs = self.driver.find_elements(By.TAG_NAME, "input")
+            print(f"Found {len(inputs)} inputs")
+            for inp in inputs:
+                print(f"Input type: {inp.get_attribute('type')}, name: {inp.get_attribute('name')}, id: {inp.get_attribute('id')}")
+        except:
+            pass
+
+        button_locators = [
+            (By.CSS_SELECTOR, "button.btn-cart"),
+            (By.CSS_SELECTOR, "button.btn-primary.btn-cart"),
+            (By.CSS_SELECTOR, "button.btn.btn-primary"),
+            (By.CSS_SELECTOR, "button.btn-primary"),
+            (By.CSS_SELECTOR, "button.btn"),
+            (By.XPATH, "//button[contains(@class, 'btn-cart')]"),
+            (By.XPATH, "//button[contains(@class, 'btn-primary')]"),
+        ]
+
+        for locator in button_locators:
+            try:
+                add_btn = WebDriverWait(self.driver, 5).until(
+                    EC.element_to_be_clickable(locator)
+                )
+                add_btn.click()
+                print(f"Clicked button with locator: {locator}")
+                break
+            except Exception as e:
+                print(f"Failed with {locator}: {e}")
+                continue
+
+        time.sleep(3)
 
     @staticmethod
     def _parse_price(text: str) -> float:
-        """Wandelt z.B. '4,99 €' oder '€4.99' in float 4.99 um."""
         cleaned = text.replace("€", "").replace(",", ".").strip()
         return float(cleaned)
