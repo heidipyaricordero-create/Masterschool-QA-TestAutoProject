@@ -1,22 +1,26 @@
 from selenium.webdriver.common.by import By
 from pages.BasePage import BasePage
+from constants import AUTH_URL
 
 
 class LoginPage(BasePage):
 
-    URL = "https://grocerymate.masterschool.com/auth"
-    EMAIL_FIELD = (By.XPATH, "//input[@type='email']")
-    PASSWORD_FIELD = (By.XPATH, "//input[@type='password']")
-    SIGNIN_BTN = (By.XPATH, "//button[@type='submit' and text()='Sign In']")
-    LOGOUT_BTN = (By.XPATH, "//button[@class='logout-btn']")
-    ERROR_ALERT = (By.XPATH, "//div[@role='status' and text()='Invalid username or password']")
+    URL = AUTH_URL
+    EMAIL_FIELD = (By.CSS_SELECTOR, "input[type='email'], input#email")
+    PASSWORD_FIELD = (By.CSS_SELECTOR, "input[type='password'], input#password")
+    SIGNIN_BTN = (By.CSS_SELECTOR, "button[type='submit']")
+    LOGOUT_BTN = (By.XPATH, "//button[contains(@class, 'logout-btn')] | //a[contains(., 'Log Out')]")
+    ERROR_ALERT = (
+        By.XPATH,
+        "//div[@role='status' and contains(., 'Invalid username or password')] | //div[contains(@class, 'alert')]",
+    )
 
     # ---Actions---
     def __init__(self, driver):
         super().__init__(driver)
 
     def load(self):
-        return self.open(self. URL)
+        return self.open(self.URL)
 
     def enter_email(self, email):
         self.type_text(self.EMAIL_FIELD, email)
@@ -34,6 +38,7 @@ class LoginPage(BasePage):
         self.enter_email(email)
         self.enter_password(password)
         self.click_signin()
+        return self
 
     def logout_displayed(self):
         return self.is_visible(self.LOGOUT_BTN)

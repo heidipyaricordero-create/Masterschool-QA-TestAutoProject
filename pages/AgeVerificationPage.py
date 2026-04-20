@@ -3,7 +3,7 @@ from pages.BasePage import BasePage
 
 class AgeVerificationPage(BasePage):
     DOB_INPUT = (By.XPATH, "//input[@type='text' and @placeholder='DD-MM-YYYY']")
-    CONFIRM_BTN = (By.XPATH, "//div[@class='modal-content'/button[text()='Confirm']")
+    CONFIRM_BTN = (By.XPATH, "//div[contains(@class, 'modal-content')]//button[normalize-space()='Confirm']")
     UNDERAGE_ALERT = (By.XPATH, "//div[@role='status' and contains(text(), 'You are underage')]")
     AGE_SUCCESS_ALERT = (By.XPATH, "//div[@role='status' and contains(text(), 'You are of age')]")
 
@@ -31,4 +31,6 @@ class AgeVerificationPage(BasePage):
     def is_age_success_displayed(self):
         return self.is_visible(self.AGE_SUCCESS_ALERT)
 
+    def modal_not_visible(self):
+        return self.is_visible(self.DOB_INPUT)
 

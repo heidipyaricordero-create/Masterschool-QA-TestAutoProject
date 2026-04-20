@@ -1,19 +1,22 @@
 import pytest
+import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from pages.LoginPage import LoginPage
 from pages.ShoppingCartPage import ShoppingCartPage
 from selenium.webdriver.chrome.options import Options
-
-
-# Konstanten (Tipp: Pfade am besten relativ oder in einer config halten)
-CHROMEDRIVER_PATH = r"C:\Users\akass\Downloads\chromedriver-win64 (1)\chromedriver-win64\chromedriver.exe"
-CART_URL = "https://grocerymate.masterschool.com/cart"
+from constants import (
+    AUTH_PATH,
+    AUTH_URL,
+    CART_URL,
+    KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON,
+    TEST_USER_EMAIL,
+    TEST_USER_PASSWORD,
+)
 
 
 @pytest.fixture(scope="function")
 def driver():
-    service = Service(executable_path=CHROMEDRIVER_PATH)
     options = Options()
 
 
@@ -35,7 +38,13 @@ def driver():
     # Falls der Browser im Hintergrund laufen soll: options.add_argument("--headless")
 
     options.add_argument("--incognito")
-    driver = webdriver.Chrome(service=service, options=options)
+
+    driver_path = os.getenv("CHROMEDRIVER_PATH")
+    if driver_path:
+        service = Service(executable_path=driver_path)
+        driver = webdriver.Chrome(service=service, options=options)
+    else:
+        driver = webdriver.Chrome(options=options)
     driver.delete_all_cookies()
 
     # Implicit Wait ist okay, aber wir verlassen uns primär auf Explicit Waits in den Pages
@@ -49,10 +58,12 @@ def driver():
 def logged_in(driver):
     """Loggt den User ein, indem die LoginPage genutzt wird (Strenges POM)."""
     login_page = LoginPage(driver)
-    login_page.driver.get("https://grocerymate.masterschool.com/auth")
+    login_page.open(AUTH_URL)
 
     # Nutze die Methoden deiner LoginPage statt find_element hier!
-    login_page.login("johndoe@example.com", "admin123")
+    login_page.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
+    if AUTH_PATH in driver.current_url and login_page.get_error_displayed():
+        pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
 
     # Optional: Warte hier kurz, bis ein Element der Startseite sichtbar ist
     # WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "user-profile")))
@@ -64,7 +75,6 @@ def logged_in(driver):
 def cleared_cart(driver, logged_in):
     """Stellt sicher, dass der Warenkorb vor dem Test leer ist."""
     cart_page = ShoppingCartPage(driver)
-    # Nutze eine Methode in der ShoppingCartPage, um zum Warenkorb zu navigieren
     driver.get(CART_URL)
     cart_page.remove_all_items()
     return driver

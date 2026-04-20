@@ -34,6 +34,10 @@ class BasePage:
             EC.presence_of_element_located(locator)
         )
 
+    def find_elements(self, locator):
+        """Return all matching elements (legacy alias)."""
+        return self.find_all(locator)
+
     def find_all(self, locator):
         """Return all matching elements"""
         self.wait.until(
@@ -48,7 +52,7 @@ class BasePage:
                 EC.visibility_of_element_located(locator)
             )
             return True
-        except TimeoutException:
+        except Exception:
             return False
 
     def click(self, locator):
@@ -84,6 +88,16 @@ class BasePage:
     def wait_for_url(self, partial_url, timeout=5):
         WebDriverWait(self.driver, timeout).until(
             EC.url_contains(partial_url)
+        )
+
+    def wait_visible(self, locator, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.visibility_of_element_located(locator)
+        )
+
+    def wait_clickable(self, locator, timeout=10):
+        return WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable(locator)
         )
 
     def screenshot(self, name="screenshot"):

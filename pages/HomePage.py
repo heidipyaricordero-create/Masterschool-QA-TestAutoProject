@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
-from.BasePage import BasePage
+from pages.BasePage import BasePage
+from constants import BASE_URL
 
 class HomePage(BasePage):
     SHOP_LINK = (By.XPATH, "//ul[@class='anim-nav']//a[@href='/store']")
@@ -12,7 +13,7 @@ class HomePage(BasePage):
 
 
     def navigate_to_home(self):
-        self.driver.get("https://grocerymate.masterschool.com")
+        self.driver.get(BASE_URL)
 
 
     def click_shop(self):
@@ -29,13 +30,8 @@ class HomePage(BasePage):
     def go_to_shop(self):
         self.click(self.SHOP_LINK)
 
-
-    def logout_displayed(self):
-        # check, if logout.link is visible
-        try:
-            return self.find_element(self.LOGOUT_LINK).is_displayed()
-        except:
-            return False
+    def is_logout_button_displayed(self):
+        return self.is_visible(self.LOGOUT_LINK, timeout=10)
 
 
 
