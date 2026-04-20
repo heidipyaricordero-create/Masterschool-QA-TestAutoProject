@@ -1,9 +1,10 @@
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from pages.LoginPage import LoginPage
 from pages.ShoppingCartPage import ShoppingCartPage
+from selenium.webdriver.chrome.options import Options
+
 
 # Konstanten (Tipp: Pfade am besten relativ oder in einer config halten)
 CHROMEDRIVER_PATH = r"C:\Users\akass\Downloads\chromedriver-win64 (1)\chromedriver-win64\chromedriver.exe"
@@ -14,9 +15,26 @@ CART_URL = "https://grocerymate.masterschool.com/cart"
 def driver():
     service = Service(executable_path=CHROMEDRIVER_PATH)
     options = Options()
+
+
+    # 1. Deaktiviert den Passwort-Manager und den Breach-Check
+    prefs = {
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False
+    }
+    options.add_experimental_option("prefs", prefs)
+
+    # 2. Unterdrückt die "Automation"-Info-Leiste und Pop-ups
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option('useAutomationExtension', False)
+
+    # 3. Zusätzliche Argumente zur Stabilität (optional)
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("--disable-notifications")
     options.add_argument("--start-maximized")
     # Falls der Browser im Hintergrund laufen soll: options.add_argument("--headless")
 
+    options.add_argument("--incognito")
     driver = webdriver.Chrome(service=service, options=options)
     driver.delete_all_cookies()
 

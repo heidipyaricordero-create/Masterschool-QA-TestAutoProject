@@ -2,17 +2,14 @@ from selenium.webdriver.common.by import By
 from.BasePage import BasePage
 
 class HomePage(BasePage):
-
     SHOP_LINK = (By.XPATH, "//ul[@class='anim-nav']//a[@href='/store']")
-    ACCOUNT_ICON = (By.XPATH, "//[@class='headerIcon'][1]")
-    CART_ICON = (By.XPATH, "//[@class='headerIcon'][3]")
-    LOGOUT_LINK = (By.XPATH, "//a[@href='/auth' and text() = 'Log Out']")
+    ACCOUNT_ICON = (By.XPATH, "(//*[@class='headerIcon'])[1]")
+    CART_ICON = (By.XPATH, "(//*[@class='headerIcon'])[3]")
+    LOGOUT_LINK = (By.XPATH, "//a[@href='/auth' and text()='Log Out']")
 
     def __init__(self, driver):
         super().__init__(driver)
 
-    def is_logout_displayed(self):
-        return self.is_visible(self.LOGOUT_LINK)
 
     def navigate_to_home(self):
         self.driver.get("https://grocerymate.masterschool.com")
@@ -33,7 +30,12 @@ class HomePage(BasePage):
         self.click(self.SHOP_LINK)
 
 
-
+    def logout_displayed(self):
+        # check, if logout.link is visible
+        try:
+            return self.find_element(self.LOGOUT_LINK).is_displayed()
+        except:
+            return False
 
 
 

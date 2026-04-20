@@ -8,6 +8,7 @@ class LoginPage(BasePage):
     EMAIL_FIELD = (By.XPATH, "//input[@type='email']")
     PASSWORD_FIELD = (By.XPATH, "//input[@type='password']")
     SIGNIN_BTN = (By.XPATH, "//button[@type='submit' and text()='Sign In']")
+    LOGOUT_BTN = (By.XPATH, "//button[@class='logout-btn']")
     ERROR_ALERT = (By.XPATH, "//div[@role='status' and text()='Invalid username or password']")
 
     # ---Actions---
@@ -33,6 +34,9 @@ class LoginPage(BasePage):
         self.enter_email(email)
         self.enter_password(password)
         self.click_signin()
+
+    def logout_displayed(self):
+        return self.is_visible(self.LOGOUT_BTN)
 
     def get_error_displayed(self):
         return self.is_visible(self.ERROR_ALERT)
