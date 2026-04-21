@@ -21,6 +21,9 @@ class ShoppingCartPage(BasePage):
     ADD_TO_CART_BTN = (By.XPATH, "//div[@class='button-area']//button[contains(@class, 'btn-cart')]")
     PRODUCT_LINK = (By.CSS_SELECTOR, "a[href*='/store/product/']")
 
+    def __init__(self, driver):
+        super().__init__(driver)
+
     def navigate(self):
         self.open(self.STORE_URL)
         return self

@@ -65,7 +65,7 @@ def logged_in(driver):
     if AUTH_PATH in driver.current_url and login_page.get_error_displayed():
         pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
 
-    # Optional: Warte hier kurz, bis ein Element der Startseite sichtbar ist
+    # Optional: Warte, bis ein Element der Startseite sichtbar ist
     # WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "user-profile")))
 
     return driver

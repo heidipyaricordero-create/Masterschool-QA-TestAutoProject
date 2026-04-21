@@ -24,7 +24,6 @@ def login(driver, email, password):
         pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
     return page
 
-
 def open_review_form(driver):
     page = ProductPage(driver)
     page.open(PRODUCT_URL)

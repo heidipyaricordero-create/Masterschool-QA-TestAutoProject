@@ -18,6 +18,8 @@ class ProductPage(BasePage):
     SUBMIT_BTN = (By.CSS_SELECTOR, ".new-review-btn-send")
     CANCEL_BTN = (By.CSS_SELECTOR, ".new-review-btn-cancel")
 
+    def __init__(self, driver):
+        super().__init__(driver)
 
     def add_product_to_cart(self, quantity=1):
         if quantity > 1:

@@ -30,9 +30,12 @@ class HomePage(BasePage):
     def go_to_shop(self):
         self.click(self.SHOP_LINK)
 
-    def is_logout_button_displayed(self):
-        return self.is_visible(self.LOGOUT_LINK, timeout=10)
 
+    def logout_displayed(self):
+        try:
+            return self.find_elements(self.LOGOUT_LINK).is_displayed()
+        except:
+            return False
 
 
 

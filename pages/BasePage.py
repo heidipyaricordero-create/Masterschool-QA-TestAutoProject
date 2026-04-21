@@ -16,7 +16,7 @@ class BasePage:
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(driver, self.DEFAULT_TIMEOUT)
-        # -- Navigation --
+
 
     def open(self, url):
         self.driver.get(url)

@@ -15,7 +15,6 @@ class LoginPage(BasePage):
         "//div[@role='status' and contains(., 'Invalid username or password')] | //div[contains(@class, 'alert')]",
     )
 
-    # ---Actions---
     def __init__(self, driver):
         super().__init__(driver)
 
