@@ -1,4 +1,5 @@
 import pytest
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -6,8 +7,6 @@ from pages.LoginPage import LoginPage
 from pages.ProductPage import ProductPage
 from constants import (
     AUTH_PATH,
-    AUTH_URL,
-    CELERY_PRODUCT_URL,
     KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON,
     TEST_USER,
 )
@@ -41,7 +40,7 @@ def open_review_form(driver, product_id):
 class TestProductPageReviews:
     @pytest.mark.parametrize("char_count,expect_accepted,product_id", [
 
-        (501, False,"66b3a57b3fd5048eacb479a6"),
+        (501, False,"66b3a57b3fd5048479a6"),
 
     ])
     def test_review_character_limit(self, driver, char_count, expect_accepted, product_id):
@@ -56,7 +55,7 @@ class TestProductPageReviews:
 
     @pytest.mark.parametrize("product_id", [
 
-        "66b3a57b3fd5048eacb479a6",
+        "66b3a57b3fd5048479a6",
 
     ])
     def test_submit_review_without_stars_shows_error(self, driver, product_id):
@@ -76,7 +75,7 @@ class TestProductPageReviews:
 
     @pytest.mark.parametrize("product_id", [
 
-        "66b3a57b3fd5048eacb479a6",
+        "66b3a57b3fd5048479a6",
 
     ])
     def test_review_not_available_for_logged_out_user(self, driver, product_id):
@@ -105,7 +104,7 @@ class TestProductPageReviews:
 
     @pytest.mark.parametrize("product_id", [
 
-        "66b3a57b3fd5048eacb479a6",
+        "66b3a57b3fd5048479a6",
 
     ])
     def test_submit_review_with_stars_no_text_shows_error(self, driver, product_id):
