@@ -7,7 +7,7 @@ AUTH_URL = f"{BASE_URL}{AUTH_PATH}"
 STORE_URL = f"{BASE_URL}/store"
 CART_URL = f"{BASE_URL}/cart"
 CELERY_PRODUCT_URL = f"{BASE_URL}/product/66b3a57b3fd5048eacb47a9b"
-
+BOTTLE_URL = f"{BASE_URL}/product/66b3a57b3fd5048eacb47a9a"
 TEST_USER_EMAIL = "johndoe@example.com"
 TEST_USER_PASSWORD = "admin123"
 TEST_USER = {"email": TEST_USER_EMAIL, "password": TEST_USER_PASSWORD}

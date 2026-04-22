@@ -6,7 +6,7 @@ import pytest
 from constants import (
     ADULT_DATE_OF_BIRTH,
     AUTH_PATH,
-    CELERY_PRODUCT_URL,
+    BOTTLE_URL,
     KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON,
     TEST_USER_EMAIL,
     TEST_USER_PASSWORD,
@@ -79,9 +79,9 @@ def test_direct_url_bypasses_verification(driver):
     if AUTH_PATH in driver.current_url and login_page.get_error_displayed():
         pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
 
-    driver.get(CELERY_PRODUCT_URL)
+    driver.get(BOTTLE_URL)
     age_verification_modal = AgeVerificationPage(driver)
-    age_verification_modal.verify_age(ADULT_DATE_OF_BIRTH)
 
-    assert age_verification_modal.is_age_success_displayed()
+
+    assert age_verification_modal.modal_not_visible()
 

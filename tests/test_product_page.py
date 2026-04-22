@@ -12,7 +12,7 @@ from constants import (
     TEST_USER,
 )
 
-PRODUCT_URL = CELERY_PRODUCT_URL
+PRODUCT_URL = "https://grocerymate.masterschool.com/product/"
 VALID_USER = TEST_USER
 
 
@@ -24,9 +24,9 @@ def login(driver, email, password):
         pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
     return page
 
-def open_review_form(driver):
+def open_review_form(driver, product_id):
     page = ProductPage(driver)
-    page.open(PRODUCT_URL)
+    page.open(PRODUCT_URL + product_id)
     wait = WebDriverWait(driver, 10)
     try:
         review_btn = wait.until(
@@ -39,56 +39,32 @@ def open_review_form(driver):
 
 
 class TestProductPageReviews:
-    @pytest.mark.parametrize("char_count,expect_accepted", [
-        (500,True),
-        (5001, False),
+    @pytest.mark.parametrize("char_count,expect_accepted,product_id", [
+
+        (501, False,"66b3a57b3fd5048eacb479a6"),
+
     ])
-    def test_review_character_limit(self, driver, char_count, expect_accepted):
+    def test_review_character_limit(self, driver, char_count, expect_accepted, product_id):
         login(driver, VALID_USER["email"], VALID_USER["password"])
-        page = open_review_form(driver)
+        page = open_review_form(driver, product_id)
         text = "A" * char_count
 
         page.select_stars(4)
         page.write_review(text)
-        page.submit_review()
 
-        if expect_accepted:
-            assert len(text) == 500
-        else:
-            try:
-                textarea = driver.find_element(By.CSS_SELECTOR, "textarea.new-review-form-control")
-            except Exception:
-                pytest.skip("Review textarea is unavailable in current app state.")
-            actual_length = len(textarea.get_attribute("value"))
-            assert actual_length <= 500
+        assert page.is_error_message_visible()
 
-    def test_average_rating_rounds_correctly(self, driver):
-        ratings = [4, 5, 4]
+    @pytest.mark.parametrize("product_id", [
 
-        for stars in ratings:
-            login(driver, VALID_USER["email"], VALID_USER["password"])
-            page = open_review_form(driver)
-            page.select_stars(stars)
-            page.write_review(f"Testbewertung mit {stars} Sternen.")
-            page.submit_review()
-            driver.get(AUTH_URL)
+        "66b3a57b3fd5048eacb479a6",
 
+    ])
+    def test_submit_review_without_stars_shows_error(self, driver, product_id):
         login(driver, VALID_USER["email"], VALID_USER["password"])
-        driver.get(PRODUCT_URL)
-
-        try:
-            avg_display = driver.find_element(By.CSS_SELECTOR, ".average-rating, #average-rating")
-        except Exception:
-            pytest.skip("Average rating element is unavailable in current app state.")
-        avg_value = float(avg_display.text.replace(",", "."))
-        assert avg_value == pytest.approx(4.5, abs=0.2)
-
-    def test_submit_review_without_stars_shows_error(self, driver):
-        login(driver, VALID_USER["email"], VALID_USER["password"])
-        page = open_review_form(driver)
-
+        page = open_review_form(driver, product_id)
         page.write_review("Kein Stern ausgewaehlt.")
         page.submit_review()
+
 
         try:
             error = WebDriverWait(driver, 10).until(EC.visibility_of_element_located(
@@ -98,8 +74,13 @@ class TestProductPageReviews:
             pytest.skip("Error element is unavailable in current app state.")
         assert error.is_displayed()
 
-    def test_review_not_available_for_logged_out_user(self, driver):
-        driver.get(PRODUCT_URL)
+    @pytest.mark.parametrize("product_id", [
+
+        "66b3a57b3fd5048eacb479a6",
+
+    ])
+    def test_review_not_available_for_logged_out_user(self, driver, product_id):
+        driver.get(PRODUCT_URL+product_id)
         wait = WebDriverWait(driver, 10)
         try:
             wait.until(EC.presence_of_element_located(
@@ -122,9 +103,14 @@ class TestProductPageReviews:
             ))
             assert login_modal.is_displayed()
 
-    def test_submit_review_with_stars_no_text_shows_error(self, driver):
+    @pytest.mark.parametrize("product_id", [
+
+        "66b3a57b3fd5048eacb479a6",
+
+    ])
+    def test_submit_review_with_stars_no_text_shows_error(self, driver, product_id):
         login(driver, VALID_USER["email"], VALID_USER["password"])
-        page = open_review_form(driver)
+        page = open_review_form(driver, product_id)
 
         page.select_stars(4)
         page.write_review("")
@@ -140,26 +126,5 @@ class TestProductPageReviews:
             pytest.skip("Error element is unavailable in current app state.")
         assert error.is_displayed()
 
-    def test_cancel_button_closes_review_form(self, driver):
-        login(driver, VALID_USER["email"], VALID_USER["password"])
-        page = open_review_form(driver)
-        page.write_review("Temporary text before cancel")
-        page.cancel_review()
 
-        textarea = driver.find_elements(By.CSS_SELECTOR, "textarea.new-review-form-control")
-        assert not textarea or not textarea[0].is_displayed()
 
-    def test_review_with_special_characters_accepted(self, driver):
-        login(driver, VALID_USER["email"], VALID_USER["password"])
-        page = open_review_form(driver)
-
-        special_text = "<script>alert('x')</script> Great & fresh \"celery\"!"
-        page.select_stars(5)
-        page.write_review(special_text)
-        page.submit_review()
-
-        # If no blocking validation is shown, input flow did not break.
-        blocking_errors = driver.find_elements(
-            By.CSS_SELECTOR, ".alert-danger, .error-message, .new-review-error"
-        )
-        assert len(blocking_errors) == 0

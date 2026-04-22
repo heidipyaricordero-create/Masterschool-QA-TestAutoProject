@@ -17,6 +17,7 @@ class ProductPage(BasePage):
     REVIEW_INPUT = (By.CSS_SELECTOR, "textarea.new-review-form-control")
     SUBMIT_BTN = (By.CSS_SELECTOR, ".new-review-btn-send")
     CANCEL_BTN = (By.CSS_SELECTOR, ".new-review-btn-cancel")
+    ERROR_MESSAGE = (By.XPATH, "//p[@class='error-message']")
 
     def __init__(self, driver):
         super().__init__(driver)
@@ -51,3 +52,6 @@ class ProductPage(BasePage):
 
     def open(self, product_url):
         return super().open(product_url)
+
+    def is_error_message_visible(self):
+        return self.is_visible(self.ERROR_MESSAGE)

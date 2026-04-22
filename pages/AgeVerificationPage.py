@@ -32,5 +32,5 @@ class AgeVerificationPage(BasePage):
         return self.is_visible(self.AGE_SUCCESS_ALERT)
 
     def modal_not_visible(self):
-        return self.is_visible(self.DOB_INPUT)
+        return not self.is_visible(self.DOB_INPUT)
 
