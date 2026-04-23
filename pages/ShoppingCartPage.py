@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from .BasePage import BasePage
+from selenium.webdriver.common.keys import Keys
 from constants import (
     CART_URL as APP_CART_URL,
     CELERY_PRODUCT_URL as APP_CELERY_PRODUCT_URL,
@@ -18,8 +19,10 @@ class ShoppingCartPage(BasePage):
     SHIPPING_COST = (By.XPATH, "//*[contains(translate(., 'SHIPPINGDELIVERYVERSAND', 'shippingdeliveryversand'), 'shipping') or contains(translate(., 'SHIPPINGDELIVERYVERSAND', 'shippingdeliveryversand'), 'delivery') or contains(translate(., 'SHIPPINGDELIVERYVERSAND', 'shippingdeliveryversand'), 'versand')]")
     REMOVE_BTN = (By.CSS_SELECTOR, ".remove-item, .cart-item-remove")
     EMPTY_CART_MSG = (By.CSS_SELECTOR, ".empty-cart, .cart-empty-message, .cart-empty")
+    QUANTITY_INPUT = (By.CSS_SELECTOR, ".cart-item-quantity, input[name='quantity']")
     ADD_TO_CART_BTN = (By.XPATH, "//div[@class='button-area']//button[contains(@class, 'btn-cart')]")
     PRODUCT_LINK = (By.CSS_SELECTOR, "a[href*='/store/product/']")
+    REMOVE_ICON = (By.XPATH, "a[@class='remove-icon']")
 
     def __init__(self, driver):
         super().__init__(driver)
@@ -32,16 +35,36 @@ class ShoppingCartPage(BasePage):
         self.open(self.CART_URL)
         return self
 
+    def add_to_cart(self, wait_for_success=True):
+
+        button = self.wait_visible(self.ADD_TO_CART_BTN)
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", button)
+
+        button.click()
+
+        if wait_for_success:
+            self.wait.until(EC.element_to_be_clickable(self.CART_ICON))
+
+        return self
+
     def handle_modal(self):
         # Placeholder for compatibility with existing tests.
         return self
 
-    def open_first_product(self):
-        links = self.driver.find_elements(*self.PRODUCT_LINK)
-        if links:
-            links[0].click()
-        else:
-            self.open(self.DEFAULT_PRODUCT_URL)
+    def set_item_quantity(self, quantity: int, index: int = 0):
+        inputs = self.find_elements(self.QUANTITY_INPUT)
+        if index >= len(inputs):
+            raise IndexError("Quantity input index out of range")
+
+        target_input = inputs[index]
+        target_input.clear()
+        target_input.send_keys(str(quantity))
+
+        # Oft muss man Enter drücken oder aus dem Feld tabben, um den Preis zu aktualisieren
+        target_input.send_keys(Keys.ENTER)
+
+        # Kurz warten, bis sich der Total-Preis aktualisiert hat (Staleness oder Preis-Check)
+        self.wait_visible(self.CART_TOTAL)
         return self
 
     def get_shipping_cost(self) -> float:
@@ -62,10 +85,12 @@ class ShoppingCartPage(BasePage):
 
     def remove_all_items(self):
         while True:
-            btns = self.driver.find_elements(*self.REMOVE_BTN)
-            if not btns:
+
+            links = self.driver.find_elements(*self.REMOVE_ICON)
+            if not links:
                 break
-            target = btns[0]
+
+            target = links[0]
             target.click()
             self.wait.until(EC.staleness_of(target))
 
