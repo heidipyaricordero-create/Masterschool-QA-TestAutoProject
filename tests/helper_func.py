@@ -14,14 +14,19 @@ VALID_USER = TEST_USER
 PRODUCT_URL = "https://grocerymate.masterschool.com/product/"
 
 def login(driver, email, password):
+    """Login."""
     page = LoginPage(driver)
     page.load()
     page.login(email, password)
+
+    # Skip the test if the account service is currently unavailable
     if AUTH_PATH in driver.current_url and page.get_error_displayed():
         pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
+
     return page
 
 def open_review_form(driver, product_id):
+    """Open review form."""
     page = ProductPage(driver)
     page.open(PRODUCT_URL + product_id)
     wait = WebDriverWait(driver, 10)
