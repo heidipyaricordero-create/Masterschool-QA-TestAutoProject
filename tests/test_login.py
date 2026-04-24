@@ -9,11 +9,13 @@ from constants import (
 
 
 def _skip_if_auth_unavailable(driver, login_page):
+    """Skip if auth unavailable."""
     if AUTH_PATH in driver.current_url and login_page.get_error_displayed():
         pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
 
 
 def test_login(driver):
+    """Test login."""
     login_page = LoginPage(driver)
     login_page.load()
     login_page.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
