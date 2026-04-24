@@ -1,4 +1,3 @@
-from selenium.common import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -14,18 +13,22 @@ class BasePage:
     DEFAULT_TIMEOUT = 30
 
     def __init__(self, driver):
+        """Initialize the page object."""
         self.driver = driver
         self.wait = WebDriverWait(driver, self.DEFAULT_TIMEOUT)
 
 
     def open(self, url):
+        """Open."""
         self.driver.get(url)
         return self
 
     def get_title(self):
+        """Get title."""
         return self.driver.title
 
     def get_url(self):
+        """Get url."""
         return self.driver.current_url
 
     def find(self, locator):
@@ -86,21 +89,25 @@ class BasePage:
         )
 
     def wait_for_url(self, partial_url, timeout=5):
+        """Wait for url."""
         WebDriverWait(self.driver, timeout).until(
             EC.url_contains(partial_url)
         )
 
     def wait_visible(self, locator, timeout=10):
+        """Wait visible."""
         return WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(locator)
         )
 
     def wait_clickable(self, locator, timeout=10):
+        """Wait clickable."""
         return WebDriverWait(self.driver, timeout).until(
             EC.element_to_be_clickable(locator)
         )
 
     def screenshot(self, name="screenshot"):
+        """Screenshot."""
         self.driver.save_screenshot(f"{name}.png")
 
 

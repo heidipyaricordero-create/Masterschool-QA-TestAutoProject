@@ -12,7 +12,6 @@ from constants import (
 
 
 class ShoppingCartPage(BasePage):
-
     STORE_URL = APP_STORE_URL
     CART_URL = APP_CART_URL
     CART_ICON = (By.XPATH, "//div[@class='headerIcon'][3]")
@@ -29,15 +28,17 @@ class ShoppingCartPage(BasePage):
     NEXT_PAGE_BUTTON = (By.XPATH, "//button[@class='pagination-link' and contains(text(),'Next')]")
 
     def __init__(self, driver):
+        """Initialize the page object."""
         super().__init__(driver)
 
     def navigate(self):
+        """Navigate."""
         self.open(self.STORE_URL)
         return self
 
 
     def open_cart(self):
-
+        """Open cart."""
         self.click(self.CART_ICON)
 
         WebDriverWait(self.driver, 10).until(
@@ -45,8 +46,9 @@ class ShoppingCartPage(BasePage):
         )
 
         return self
-    def find_product(self, product_name):
 
+    def find_product(self, product_name):
+        """Find product."""
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(1)
 
@@ -74,7 +76,7 @@ class ShoppingCartPage(BasePage):
         raise Exception(f"Produkt '{product_name}' wurde nicht gefunden! Gefundene Karten: {len(cards)}")
 
     def add_product(self, product_name, quantity=1):
-
+        """Add product."""
         card = self.find_product(product_name)
         add_button = card.find_element(By.CSS_SELECTOR, ".btn-cart")
         quantity_input = card.find_element(By.CSS_SELECTOR, ".quantity")
@@ -83,18 +85,13 @@ class ShoppingCartPage(BasePage):
             quantity_input.send_keys(quantity)
         add_button.click()
 
-
-        import time
-        time.sleep(2)
-
-
-
-
     def handle_modal(self):
+        """Handle modal."""
         # Placeholder for compatibility with existing tests.
         return self
 
     def set_item_quantity(self, quantity: int, index: int = 0):
+        """Set item quantity."""
         inputs = self.find_elements(self.QUANTITY_INPUT)
         if index >= len(inputs):
             raise IndexError("Quantity input index out of range")
@@ -102,18 +99,18 @@ class ShoppingCartPage(BasePage):
         target_input = inputs[index]
         target_input.clear()
         target_input.send_keys(str(quantity))
-
-
         target_input.send_keys(Keys.ENTER)
 
         self.wait_visible(self.CART_TOTAL)
         return self
 
     def get_shipping_cost(self) -> float:
+        """Get shipping cost."""
         element = self.wait_visible(self.SHIPPING_COST, timeout=10)
         return self._parse_price(element.text)
 
     def get_cart_total(self):
+        """Get cart total."""
         try:
             # Warte, bis das Summen-Element sichtbar ist
             element = self.wait_visible(self.CART_TOTAL, timeout=10)
@@ -125,6 +122,7 @@ class ShoppingCartPage(BasePage):
             return 0.0
 
     def remove_item_by_index(self, index: int = 0):
+        """Remove item by index."""
         remove_btns = self.find_elements(self.REMOVE_BTN)
         if index >= len(remove_btns):
             raise IndexError("Remove button index out of range")
@@ -133,6 +131,7 @@ class ShoppingCartPage(BasePage):
         self.wait.until(EC.staleness_of(target))
 
     def remove_all_items(self):
+        """Remove all items."""
         while True:
 
             links = self.driver.find_elements(*self.REMOVE_ICON)
@@ -144,6 +143,7 @@ class ShoppingCartPage(BasePage):
             self.wait.until(EC.staleness_of(target))
 
     def decrease_quantity(self, product, decrease_factor):
+        """Decrease quantity."""
         minus_button_xpath = f"//h5[text()='{product}']/ancestor::div[contains(@class,'flex-grow-1')]//button[@class='minus']"
         minus_button = self.driver.find_element(By.XPATH, minus_button_xpath)
         for i in range(decrease_factor):
