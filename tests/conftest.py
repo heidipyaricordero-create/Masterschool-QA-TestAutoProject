@@ -27,15 +27,14 @@ def driver():
     }
     options.add_experimental_option("prefs", prefs)
 
-    # 2. Unterdrückt die "Automation"-Info-Leiste und Pop-ups
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
 
-    # 3. Zusätzliche Argumente zur Stabilität (optional)
+
     options.add_argument("--disable-popup-blocking")
     options.add_argument("--disable-notifications")
     options.add_argument("--start-maximized")
-    # Falls der Browser im Hintergrund laufen soll: options.add_argument("--headless")
+
 
     options.add_argument("--incognito")
 
@@ -60,21 +59,18 @@ def logged_in(driver):
     login_page = LoginPage(driver)
     login_page.open(AUTH_URL)
 
-    # Nutze die Methoden deiner LoginPage statt find_element hier!
     login_page.login(TEST_USER_EMAIL, TEST_USER_PASSWORD)
     if AUTH_PATH in driver.current_url and login_page.get_error_displayed():
         pytest.skip(KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON)
 
-    # Optional: Warte, bis ein Element der Startseite sichtbar ist
-    # WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "user-profile")))
 
     return driver
 
 
 @pytest.fixture()
 def cleared_cart(driver, logged_in):
-    """Stellt sicher, dass der Warenkorb vor dem Test leer ist."""
+
     cart_page = ShoppingCartPage(driver)
-    driver.get(CART_URL)
+    cart_page.open_cart()
     cart_page.remove_all_items()
-    return driver
+    return cart_page
