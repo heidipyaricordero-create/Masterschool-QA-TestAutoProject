@@ -6,40 +6,41 @@ from tests.helper_func import login, VALID_USER
 
 
 class TestShoppingCart:
-
-
     @pytest.mark.parametrize("product_name, quantity, cart_value, expected_free_shipping", [
         ("Galia Melon", 2, 3.6, False),
         ("Gala Apples", 50, 100, True),
     ])
     def test_shipping_cost_threshold(self, driver, product_name, quantity, cart_value, expected_free_shipping):
-
+        """Test shipping cost threshold."""
+        # --- PREPARE (Arrange) ---
+        # Log in to the application
         login(driver, VALID_USER["email"], VALID_USER["password"])
 
+        # Initialize page objects
         shopping_cart_page = ShoppingCartPage(driver)
-
         shopping_cart_page.open_cart()
 
+        # Ensure the test starts with a clean state
         shopping_cart_page.remove_all_items()
 
+        # Navigate to the store or product page
         shopping_cart_page.navigate()
 
+        # Handle mandatory age verificatio
         age_verification_modal = AgeVerificationPage(driver)
-
         age_verification_modal.verify_age(ADULT_DATE_OF_BIRTH)
 
         # Find the product and add to cart, with given quantity
-
         shopping_cart_page.add_product(product_name, quantity)
-
         shopping_cart_page.open_cart()
 
+        # --- CHECK (Assert) ---
+        # Retrieve final values for validation
         actual_total = shopping_cart_page.get_cart_total()
-
         shipping_cost = shopping_cart_page.get_shipping_cost()
 
         print(f"Warenwert: {actual_total}, Versandkosten: {shipping_cost}")
-
+        # Validate shipping cost based on the expected threshold
         if expected_free_shipping:
 
             assert shipping_cost == 0.0, f"Fehler: Versand sollte kostenlos sein bei {actual_total}€"
@@ -54,14 +55,19 @@ class TestShoppingCart:
     ])
     @pytest.mark.xfail(reason='Known Bug: Shipping threshold logic does not work correctly')
     def test_shipping_recalculated_after_removing_items(self, driver, product_name, initial_quantity, decrease_factor, expected_free_shipping):
+        """Test shipping recalculated after removing items."""
+        # --- PREPARE (Arrange) ---
+        # Log in to the application
         login(driver, VALID_USER["email"], VALID_USER["password"])
-        shopping_cart_page = ShoppingCartPage(driver)
 
+        # Initialize page objects
+        shopping_cart_page = ShoppingCartPage(driver)
         shopping_cart_page.open_cart()
         shopping_cart_page.remove_all_items()
         shopping_cart_page.navigate()
         age_verification_modal = AgeVerificationPage(driver)
         age_verification_modal.verify_age(ADULT_DATE_OF_BIRTH)
+
         # Find the product and add to cart, with given quantity
         shopping_cart_page.add_product(product_name, initial_quantity)
         shopping_cart_page.open_cart()

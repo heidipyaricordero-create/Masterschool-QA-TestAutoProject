@@ -2,7 +2,6 @@
 
 BASE_URL = "https://grocerymate.masterschool.com"
 AUTH_PATH = "/auth"
-
 AUTH_URL = f"{BASE_URL}{AUTH_PATH}"
 STORE_URL = f"{BASE_URL}/store"
 CART_URL = f"{BASE_URL}/checkout"
@@ -10,9 +9,8 @@ BOTTLE_URL = f"{BASE_URL}/product/66b3a57b3fd5048eacb47a9a"
 TEST_USER_EMAIL = "johndoe@example.com"
 TEST_USER_PASSWORD = "admin123"
 TEST_USER = {"email": TEST_USER_EMAIL, "password": TEST_USER_PASSWORD}
-
+ADULT_DATE_OF_BIRTH = "01-01-1990"
 KNOWN_ACCOUNT_UNAVAILABLE_SKIP_REASON = (
     "Known test account is unavailable in current environment."
 )
 
-ADULT_DATE_OF_BIRTH = "01-01-1990"
